@@ -1,0 +1,206 @@
+from fitness import fitness, generate_dict_from_files
+import random
+import string
+
+from selection import selection
+from crossover import crossover
+
+ALPHABET = "abcdefghijklmnopqrstuvwxyz"
+INIT_DICTIONARIES_NUM = 100
+
+
+def get_data():
+    with open("enc.txt", 'r') as file:
+        # Read the contents of the file
+        file_content = file.read()
+
+    return file_content
+
+
+def string_to_dictionary(input_string):
+    dictionary = {}
+
+    for i, char in enumerate(input_string):
+        dictionary[ALPHABET[i]] = char
+
+    return dictionary
+
+
+def shuffled_alphabet():
+    alphabet_list = list(ALPHABET)
+    random.shuffle(alphabet_list)
+    shuffled = ''.join(alphabet_list)
+    return shuffled
+
+
+def encode():
+    return shuffled_alphabet()
+
+
+def initialization():
+    dictionary_set = set()
+    for _ in range(INIT_DICTIONARIES_NUM):
+        string_dict = encode()
+        # print(string_dict)
+        dictionary = string_to_dictionary(string_dict)
+        # print(dict)
+        dictionary_set.add(frozenset(dictionary.items()))
+    # print(dictionary_set)
+    return dictionary_set
+
+
+def mutation(s):
+    # Generate two random numbers between 0 and 25
+    random_num1 = random.randint(0, 25)
+    random_num2 = random.randint(0, 25)
+
+    # Convert the input string to a list for easier manipulation
+    string_list = list(s)
+
+    # Swap characters at the random positions
+    string_list[random_num1], string_list[random_num2] = string_list[random_num2], string_list[random_num1]
+
+    # Convert the list back to a string
+    mutated_string = "".join(string_list)
+
+    return mutated_string
+
+
+def choose_percentage(percentage, lst):
+    n = int(len(lst) * (percentage / 100))
+    selected_items = random.sample(lst, n)
+    return selected_items
+
+
+def fitness_calculate(lst, enc_file_contents, dict_file, dict_file_set, enc_file, freq_dict):
+    from darwinian_or_lamarkian import darwinian_or_lamarkian
+    all_dict_updated = []
+    for s in lst:
+        all_dict_updated.append((s, fitness(string_to_dictionary(s), enc_file_contents, dict_file, dict_file_set, enc_file, freq_dict)))
+    #uncomment to add darwinian_or_lamarkian optimization
+    # all_dict_updated = darwinian_or_lamarkian(all_dict_updated, enc_file_contents, dict_file, dict_file_set, enc_file, freq_dict)
+    top_solution, worst_solution = selection(all_dict_updated)
+
+    return top_solution, worst_solution
+
+
+def cross_stage(lst, new_generation):
+    shuffled_list = random.sample(lst, len(lst))
+    for i in range(len(shuffled_list) - 1):
+        if i == 0:
+            new_generation.append(crossover(shuffled_list[i], shuffled_list[-1]))
+        x = crossover(shuffled_list[i], shuffled_list[i + 1])
+        new_generation.append(x)
+
+    return new_generation
+
+
+def mutation_stage(lst, index):
+    for element in lst:
+        lst.remove(element)
+        for i in range(index):
+            temp = element
+            n = mutation(temp)
+            element = n
+        lst.append(element)
+
+    return lst
+
+
+def create_x_random_strings(x):
+    str_lst = []
+    for _ in range(x):
+        str = encode()
+        str_lst.append(str)
+
+    return str_lst
+
+
+def write_results(solution):
+    enc_file_path = 'enc.txt'
+    enc_file = open(enc_file_path, 'r')
+    enc_file_contents = enc_file.read()
+
+    out_file = open('plain.txt', 'w')
+    out_perm_file = open('perm.txt', 'w')
+
+    for word in enc_file_contents:
+        new_word = ""
+        for char in word:
+            if char != ',' and char != '.' and char != ';' and char != '\n' and char != ' ':
+                new_word += solution[char]
+            else:
+                new_word += char
+        out_file.write(new_word)
+    for i in range(len(ALPHABET)):
+        s = ALPHABET[i] + " " + solution[ALPHABET[i]] + "\n"
+        out_perm_file.write(s)
+
+    out_file.close()
+    enc_file.close()
+    out_perm_file.close()
+
+def main():
+    all_dict = []
+    best_dict_progress = []
+    average_dict_progress = []
+    worst_dict_progress = []
+    for j in range(1000):
+        str = encode()
+        all_dict.append(str)
+    enc_file_contents, dict_file, dict_file_set, enc_file, freq_dict = generate_dict_from_files()
+    for gen in range(350):
+        new_generation = []
+        temp_worst_sol = []
+        temp_top_sol = []
+        top_solution, worst_solution = fitness_calculate(all_dict, enc_file_contents, dict_file, dict_file_set, enc_file, freq_dict)
+
+
+        for sol in top_solution:
+            temp_top_sol.append(sol[0])
+
+        for sol in worst_solution:  # put all worst sol in one list
+            temp_worst_sol.append(sol[0])  # 80
+
+        # STEP 1 - SAVE TOP 20 TO NEXT GENERATION // 20 saved so far
+        i = 0
+        for sol in top_solution:  # enter only the top to next gen
+            i += 1
+            new_generation.append(sol[0])  # len is 20
+            if i == 50:
+                break
+
+        # STEP 2 - SAVE TOP 20 WITH MUTATION  // 25 saved so far
+        top_with_mutation = mutation_stage(temp_top_sol, 4)
+        new_generation += top_with_mutation  # add top with mutation //25
+
+        # STEP 3 - SAVE TOP 20 WITH CROSSOVER  // 60 saved so far
+        new_generation = cross_stage(temp_top_sol, new_generation)  # add top crossover //45
+
+        # STEP 4 -  SAVE NEW 400 // 65 saved so far
+        news = create_x_random_strings(400)
+        new_generation += news
+
+        # STEP 5 -  CROSSOVER top with news// 85 saved so far
+        top_ten = choose_percentage(25, temp_top_sol)
+        news_ten = choose_percentage(12.5, news)
+        new_list = top_ten + news_ten
+
+        new_generation = cross_stage(new_list, new_generation)  # 80
+
+        # STEP 6 -  CROSSOVER random tops news// 85 saved so far
+        rand_tops = choose_percentage(25, temp_top_sol)
+        new_generation = cross_stage(rand_tops, new_generation)
+
+        all_dict = new_generation
+
+        best_dict_progress.append(top_solution[0][1])
+        average_dict_progress.append(worst_solution[40][1])
+        worst_dict_progress.append(worst_solution[79][1])
+
+    print("best result: ", all_dict[0])
+    write_results(string_to_dictionary(all_dict[0]))
+    return 0
+
+if __name__ == "__main__":
+    main()
