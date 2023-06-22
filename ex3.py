@@ -49,9 +49,10 @@ def initialization():
 
 def mutation(s):
     # Generate two random numbers between 0 and 25
-    random_num1 = random.randint(0, 25)
-    random_num2 = random.randint(0, 25)
-
+    num_of_weights = len(s)
+    random_num1 = random.randint(0, num_of_weights)
+    random_num2 = random.randint(0, num_of_weights)
+    
     # Convert the input string to a list for easier manipulation
     string_list = list(s)
 
