@@ -5,7 +5,8 @@ from selection import selection
 from crossover import crossover
 
 ALPHABET = "abcdefghijklmnopqrstuvwxyz"
-INIT_DICTIONARIES_NUM = 100
+NUM_OF_WEIGTHS_IN_SET = 84 # 16x4 + 4x4 + 4x1
+INIT_NUM_OF_WEIGHTS = 100
 
 
 def get_data():
@@ -24,27 +25,24 @@ def string_to_array(input_string):
     return array
 
 
-def shuffled_alphabet():
-    alphabet_list = list(ALPHABET)
-    random.shuffle(alphabet_list)
-    shuffled = ''.join(alphabet_list)
-    return shuffled
+def generate_solution():
+    min_val = -1.0
+    max_val = 1.0
+    random_floats = [random.uniform(min_val, max_val) for _ in range(NUM_OF_WEIGTHS_IN_SET)]
+    return random_floats
 
 
 def encode():
-    return shuffled_alphabet()
+    return generate_solution()
 
 
 def initialization():
-    dictionary_set = set()
-    for _ in range(INIT_DICTIONARIES_NUM):
-        string_dict = encode()
-        # print(string_dict)
-        dictionary = string_to_dictionary(string_dict)
-        # print(dict)
-        dictionary_set.add(frozenset(dictionary.items()))
-    # print(dictionary_set)
-    return dictionary_set
+    weights_array = []
+    for _ in range(INIT_NUM_OF_WEIGHTS):
+        weights_set = encode()
+        weights_array.append(weights_set)
+
+    return weights_array
 
 
 def mutation(s):
@@ -52,7 +50,7 @@ def mutation(s):
     num_of_weights = len(s)
     random_num1 = random.randint(0, num_of_weights)
     random_num2 = random.randint(0, num_of_weights)
-    
+
     # Convert the input string to a list for easier manipulation
     string_list = list(s)
 
