@@ -1,7 +1,6 @@
 from fitness import fitness, generate_dict_from_files
 import random
 import string
-
 from selection import selection
 from crossover import crossover
 
@@ -16,14 +15,13 @@ def get_data():
 
     return file_content
 
+def string_to_array(input_string):
+    array = []
 
-def string_to_dictionary(input_string):
-    dictionary = {}
+    for char in input_string:
+        array.append(int(char))
 
-    for i, char in enumerate(input_string):
-        dictionary[ALPHABET[i]] = char
-
-    return dictionary
+    return array
 
 
 def shuffled_alphabet():
@@ -72,14 +70,12 @@ def choose_percentage(percentage, lst):
     return selected_items
 
 
-def fitness_calculate(lst, enc_file_contents, dict_file, dict_file_set, enc_file, freq_dict):
-    from darwinian_or_lamarkian import darwinian_or_lamarkian
-    all_dict_updated = []
+def fitness_calculate(lst, input_data, results):
+    all_weights_updated = []
     for s in lst:
-        all_dict_updated.append((s, fitness(string_to_dictionary(s), enc_file_contents, dict_file, dict_file_set, enc_file, freq_dict)))
-    #uncomment to add darwinian_or_lamarkian optimization
-    # all_dict_updated = darwinian_or_lamarkian(all_dict_updated, enc_file_contents, dict_file, dict_file_set, enc_file, freq_dict)
-    top_solution, worst_solution = selection(all_dict_updated)
+        all_weights_updated.append((s, fitness(string_to_array(s),input_data, results)))
+        
+    top_solution, worst_solution = selection(all_weights_updated)
 
     return top_solution, worst_solution
 
