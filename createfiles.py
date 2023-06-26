@@ -56,12 +56,10 @@ def create_files(strings_file):
 
 
 if __name__ == '__main__':
-    create_files('nn0.txt')
-    train_binary_strings, train_labels_encoded, test_binary_strings, test_labels_encoded = process_files('train_set.txt', 'test_set.txt')
-    # print(train_binary_strings)
-    # print(train_labels_encoded)
-    # print(test_binary_strings)
-    # print(test_labels_encoded)
+    # create_files('nn0.txt') # create new files
+
+    train_binary_strings, train_labels_encoded, test_binary_strings, test_labels_encoded = \
+        process_files('train_set.txt', 'test_set.txt')
     numerical_representations = []
     for binary_string in train_binary_strings:
         numerical_representation = int(binary_string, 2)  # Convert binary string to decimal

@@ -4,16 +4,9 @@ import string
 from selection import selection
 from crossover import crossover
 
-NUM_OF_WEIGTHS_IN_SET = 84 # 16x4 + 4x4 + 4x1
+NUM_OF_WEIGTHS_IN_SET = 84  # 16x4 + 4x4 + 4x1
 INIT_NUM_OF_WEIGHTS = 100
 
-
-def get_data():
-    with open("enc.txt", 'r') as file:
-        # Read the contents of the file
-        file_content = file.read()
-
-    return file_content
 
 def string_to_array(input_string):
     array = []
@@ -44,22 +37,15 @@ def initialization():
     return weights_array
 
 
-def mutation(s): #todo: change to arrays
-    # Generate two random numbers between 0 and 25
-    num_of_weights = len(s)
-    random_num1 = random.randint(0, num_of_weights)
-    random_num2 = random.randint(0, num_of_weights)
+def mutation(s):
+    mutated_array = s.copy()
+    index = random.randint(0, len(mutated_array) - 1)
+    if mutated_array[index] == 0:
+        mutated_array[index] = 1
+    else:
+        mutated_array[index] = 0
 
-    # Convert the input string to a list for easier manipulation
-    string_list = list(s)
-
-    # Swap characters at the random positions
-    string_list[random_num1], string_list[random_num2] = string_list[random_num2], string_list[random_num1]
-
-    # Convert the list back to a string
-    mutated_string = "".join(string_list)
-
-    return mutated_string
+    return mutated_array
 
 
 def choose_percentage(percentage, lst):
@@ -71,8 +57,8 @@ def choose_percentage(percentage, lst):
 def fitness_calculate(lst, input_data, results):
     all_weights_updated = []
     for s in lst:
-        all_weights_updated.append((s, fitness(string_to_array(s),input_data, results)))
-        
+        all_weights_updated.append((s, fitness(string_to_array(s), input_data, results)))
+
     top_solution, worst_solution = selection(all_weights_updated)
 
     return top_solution, worst_solution
@@ -110,8 +96,7 @@ def create_x_random_strings(x):
     return str_lst
 
 
-
-def main():
+def ald_main():
     all_dict = []
     best_dict_progress = []
     average_dict_progress = []
@@ -124,8 +109,8 @@ def main():
         new_generation = []
         temp_worst_sol = []
         temp_top_sol = []
-        top_solution, worst_solution = fitness_calculate(all_dict, enc_file_contents, dict_file, dict_file_set, enc_file, freq_dict)
-
+        top_solution, worst_solution = fitness_calculate(all_dict, enc_file_contents, dict_file, dict_file_set,
+                                                         enc_file, freq_dict)
 
         for sol in top_solution:
             temp_top_sol.append(sol[0])
@@ -173,5 +158,13 @@ def main():
     # write_results(string_to_dictionary(all_dict[0]))
     return 0
 
+def main():
+    w = initialization()  # create 100 weights
+    print(w)
+
 if __name__ == "__main__":
+    #old_main()
     main()
+
+
+
