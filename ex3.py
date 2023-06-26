@@ -96,44 +96,46 @@ def create_x_random_strings(x):
     return str_lst
 
 
-def ald_main():
-    all_dict = []
-    best_dict_progress = []
-    average_dict_progress = []
-    worst_dict_progress = []
-    for j in range(1000):
-        str = encode()
-        all_dict.append(str)
-    enc_file_contents, dict_file, dict_file_set, enc_file, freq_dict = generate_dict_from_files()
+def main():
+
+    w = initialization()  # create 100 solutions of 84 cells
+    best_sol_progress = []
+    average_sol_progress = []
+    worst_sol_progress = []
+
+    all_solutions = []
+    all_solutions.append(w)
+    print(all_solutions)
+
     for gen in range(350):
         new_generation = []
         temp_worst_sol = []
         temp_top_sol = []
-        top_solution, worst_solution = fitness_calculate(all_dict, enc_file_contents, dict_file, dict_file_set,
+        top_solution, worst_solution = fitness_calculate(all_solutions, enc_file_contents, dict_file, dict_file_set,
                                                          enc_file, freq_dict)
 
         for sol in top_solution:
             temp_top_sol.append(sol[0])
 
         for sol in worst_solution:  # put all worst sol in one list
-            temp_worst_sol.append(sol[0])  # 80
+            temp_worst_sol.append(sol[0])
 
-        # STEP 1 - SAVE TOP 20 TO NEXT GENERATION // 20 saved so far
+        # STEP 1 - SAVE TOP 5 TO NEXT GENERATION // 5 saved so far
         i = 0
         for sol in top_solution:  # enter only the top to next gen
             i += 1
-            new_generation.append(sol[0])  # len is 20
-            if i == 50:
+            new_generation.append(sol[0])
+            if i == 5:
                 break
 
         # STEP 2 - SAVE TOP 20 WITH MUTATION  // 25 saved so far
         top_with_mutation = mutation_stage(temp_top_sol, 4)
         new_generation += top_with_mutation  # add top with mutation //25
 
-        # STEP 3 - SAVE TOP 20 WITH CROSSOVER  // 60 saved so far
+        # STEP 3 - SAVE TOP 20 WITH CROSSOVER  // 30 saved so far
         new_generation = cross_stage(temp_top_sol, new_generation)  # add top crossover //45
 
-        # STEP 4 -  SAVE NEW 400 // 65 saved so far
+        # STEP 4 -  SAVE NEW 20 // 65 saved so far
         news = create_x_random_strings(400)
         new_generation += news
 
@@ -148,23 +150,16 @@ def ald_main():
         rand_tops = choose_percentage(25, temp_top_sol)
         new_generation = cross_stage(rand_tops, new_generation)
 
-        all_dict = new_generation
+        all_solutions = new_generation
 
-        best_dict_progress.append(top_solution[0][1])
-        average_dict_progress.append(worst_solution[40][1])
-        worst_dict_progress.append(worst_solution[79][1])
+        best_sol_progress.append(top_solution[0][1])
+        average_sol_progress.append(worst_solution[40][1])
+        worst_sol_progress.append(worst_solution[79][1])
 
-    print("best result: ", all_dict[0])
+    print("best result: ", all_solutions[0])
     # write_results(string_to_dictionary(all_dict[0]))
     return 0
 
-def main():
-    w = initialization()  # create 100 weights
-    print(w)
 
 if __name__ == "__main__":
-    #old_main()
     main()
-
-
-
