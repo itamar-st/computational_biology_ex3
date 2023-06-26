@@ -1,10 +1,9 @@
-from fitness import fitness, generate_dict_from_files
+from fitness import fitness
 import random
 import string
 from selection import selection
 from crossover import crossover
 
-ALPHABET = "abcdefghijklmnopqrstuvwxyz"
 NUM_OF_WEIGTHS_IN_SET = 84 # 16x4 + 4x4 + 4x1
 INIT_NUM_OF_WEIGHTS = 100
 
@@ -45,7 +44,7 @@ def initialization():
     return weights_array
 
 
-def mutation(s):
+def mutation(s): #todo: change to arrays
     # Generate two random numbers between 0 and 25
     num_of_weights = len(s)
     random_num1 = random.randint(0, num_of_weights)
@@ -111,29 +110,6 @@ def create_x_random_strings(x):
     return str_lst
 
 
-def write_results(solution):
-    enc_file_path = 'enc.txt'
-    enc_file = open(enc_file_path, 'r')
-    enc_file_contents = enc_file.read()
-
-    out_file = open('plain.txt', 'w')
-    out_perm_file = open('perm.txt', 'w')
-
-    for word in enc_file_contents:
-        new_word = ""
-        for char in word:
-            if char != ',' and char != '.' and char != ';' and char != '\n' and char != ' ':
-                new_word += solution[char]
-            else:
-                new_word += char
-        out_file.write(new_word)
-    for i in range(len(ALPHABET)):
-        s = ALPHABET[i] + " " + solution[ALPHABET[i]] + "\n"
-        out_perm_file.write(s)
-
-    out_file.close()
-    enc_file.close()
-    out_perm_file.close()
 
 def main():
     all_dict = []
@@ -194,7 +170,7 @@ def main():
         worst_dict_progress.append(worst_solution[79][1])
 
     print("best result: ", all_dict[0])
-    write_results(string_to_dictionary(all_dict[0]))
+    # write_results(string_to_dictionary(all_dict[0]))
     return 0
 
 if __name__ == "__main__":
