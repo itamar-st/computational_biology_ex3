@@ -1,10 +1,11 @@
 from fitness import fitness
+from createfiles import process_files
 import random
 import string
 from selection import selection
 from crossover import crossover
 
-NUM_OF_WEIGTHS_IN_SET = 84  # 16x4 + 4x4 + 4x1
+NUM_OF_WEIGTHS_IN_SET = 98  # 16x4 + 4x4 + 4x2 + bias: 4 + 4+ 2
 INIT_NUM_OF_WEIGHTS = 100
 
 
@@ -17,21 +18,18 @@ def string_to_array(input_string):
     return array
 
 
-def generate_solution():
+def encode():
     min_val = -1.0
     max_val = 1.0
     random_floats = [random.uniform(min_val, max_val) for _ in range(NUM_OF_WEIGTHS_IN_SET)]
     return random_floats
 
 
-def encode():
-    return generate_solution()
-
-
 def initialization():
     weights_array = []
     for _ in range(INIT_NUM_OF_WEIGHTS):
         weights_set = encode()
+        print(len(weights_set))
         weights_array.append(weights_set)
 
     return weights_array
@@ -57,7 +55,8 @@ def choose_percentage(percentage, lst):
 def fitness_calculate(lst, input_data, results):
     all_weights_updated = []
     for s in lst:
-        all_weights_updated.append((s, fitness(string_to_array(s), input_data, results)))
+        print(len(s))
+        all_weights_updated.append((s, fitness(s, input_data, results)))
 
     top_solution, worst_solution = selection(all_weights_updated)
 
@@ -97,22 +96,28 @@ def create_x_random_strings(x):
 
 
 def main():
+    all_solutions = initialization()  # create 100 solutions of 98 cells
 
-    w = initialization()  # create 100 solutions of 84 cells
     best_sol_progress = []
     average_sol_progress = []
     worst_sol_progress = []
 
-    all_solutions = []
-    all_solutions.append(w)
-    print(all_solutions)
+    train_binary_strings, train_labels_encoded, test_binary_strings, test_labels_encoded = \
+        process_files('train_set.txt', 'test_set.txt')
+    binary_lists = []
+
+    for binary_string in train_binary_strings:
+        lst = [int(bit) for bit in binary_string]
+        binary_lists.append(lst)
+
+    # Verify the converted numerical representations
+    print("Numerical Representations:", binary_lists)
 
     for gen in range(350):
         new_generation = []
         temp_worst_sol = []
         temp_top_sol = []
-        top_solution, worst_solution = fitness_calculate(all_solutions, enc_file_contents, dict_file, dict_file_set,
-                                                         enc_file, freq_dict)
+        top_solution, worst_solution = fitness_calculate(all_solutions, binary_lists, train_labels_encoded)
 
         for sol in top_solution:
             temp_top_sol.append(sol[0])
