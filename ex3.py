@@ -3,9 +3,8 @@ from createfiles import process_files
 import random
 import string
 from selection import selection
-from crossover import crossover
 
-NUM_OF_WEIGTHS_IN_SET = 98  # 16x4 + 4x4 + 4x2 + bias: 4 + 4+ 2
+NUM_OF_WEIGTHS_IN_SET = 10562  # 2048 + 8192 + 128 + 128 + 64 + 2
 INIT_NUM_OF_WEIGHTS = 100
 
 
@@ -29,7 +28,7 @@ def initialization():
     weights_array = []
     for _ in range(INIT_NUM_OF_WEIGHTS):
         weights_set = encode()
-        print(len(weights_set))
+        # print(len(weights_set))
         weights_array.append(weights_set)
 
     return weights_array
@@ -55,7 +54,7 @@ def choose_percentage(percentage, lst):
 def fitness_calculate(lst, input_data, results):
     all_weights_updated = []
     for s in lst:
-        print(len(s))
+        # print(len(s))
         all_weights_updated.append((s, fitness(s, input_data, results)))
 
     top_solution, worst_solution = selection(all_weights_updated)
@@ -72,6 +71,16 @@ def cross_stage(lst, new_generation):
         new_generation.append(x)
 
     return new_generation
+
+
+def crossover(solution1, solution2):
+    # Generate a random crossover point
+    crossover_point = random.randint(1, NUM_OF_WEIGTHS_IN_SET)
+
+    # Perform crossover operation
+    new_cross = solution1[:crossover_point] + solution2[crossover_point:]
+
+    return new_cross
 
 
 def mutation_stage(lst, index):
@@ -104,20 +113,28 @@ def main():
 
     train_binary_strings, train_labels_encoded, test_binary_strings, test_labels_encoded = \
         process_files('train_set.txt', 'test_set.txt')
-    binary_lists = []
 
-    for binary_string in train_binary_strings:
-        lst = [int(bit) for bit in binary_string]
-        binary_lists.append(lst)
+    binary_lists_train = []
+    binary_lists_test = []
+
+    for bin_str_train in train_binary_strings:
+        lst = [int(bit) for bit in bin_str_train]
+        binary_lists_train.append(lst)
+
+    for bin_str_test in test_binary_strings:
+        lst = [int(bit) for bit in bin_str_test]
+        binary_lists_test.append(lst)
 
     # Verify the converted numerical representations
-    print("Numerical Representations:", binary_lists)
-
+    # print("Numerical Representations:", binary_lists_train)
+    gen_num = 1
     for gen in range(350):
+        print("-------------Generation num: ", gen_num, "----------------------")
+        gen_num += 1
         new_generation = []
         temp_worst_sol = []
         temp_top_sol = []
-        top_solution, worst_solution = fitness_calculate(all_solutions, binary_lists, train_labels_encoded)
+        top_solution, worst_solution = fitness_calculate(all_solutions, binary_lists_train, train_labels_encoded)
 
         for sol in top_solution:
             temp_top_sol.append(sol[0])
@@ -141,19 +158,19 @@ def main():
         new_generation = cross_stage(temp_top_sol, new_generation)  # add top crossover //45
 
         # STEP 4 -  SAVE NEW 20 // 65 saved so far
-        news = create_x_random_strings(400)
+        news = create_x_random_strings(20)
         new_generation += news
 
         # STEP 5 -  CROSSOVER top with news// 85 saved so far
         top_ten = choose_percentage(25, temp_top_sol)
-        news_ten = choose_percentage(12.5, news)
-        new_list = top_ten + news_ten
+        worst_ten = choose_percentage(12.5, temp_worst_sol)
+        new_list = top_ten + worst_ten
 
         new_generation = cross_stage(new_list, new_generation)  # 80
 
-        # STEP 6 -  CROSSOVER random tops news// 85 saved so far
-        rand_tops = choose_percentage(25, temp_top_sol)
-        new_generation = cross_stage(rand_tops, new_generation)
+        # STEP 6 -  CROSSOVER random worst// 85 saved so far
+        rand_worst = choose_percentage(25, temp_worst_sol)
+        new_generation = cross_stage(rand_worst, new_generation)
 
         all_solutions = new_generation
 
@@ -163,6 +180,9 @@ def main():
 
     print("best result: ", all_solutions[0])
     # write_results(string_to_dictionary(all_dict[0]))
+    print("the test result:")
+    fitness(all_solutions[0], binary_lists_test, test_labels_encoded)
+
     return 0
 
 

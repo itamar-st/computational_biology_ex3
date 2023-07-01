@@ -1,5 +1,4 @@
 import runnet1
-import numpy as np
 
 
 # calculate the fittness of the solution
@@ -9,14 +8,15 @@ def fitness(weights, input_data, results):
     network = runnet1.NeuralNetwork(weights)
     for i in range(len(input_data)):
         # Test the network with some input data
-        output = network.feedforward(input_data[i])
+        # output = network.feedforward(input_data[i])
+        output = network.ff(input_data[i])
         if output[0][0] > output[0][1]:
             output = 0
         else:
             output = 1
-        print(results[i][1])
-        print(results[i][0])
-        print(output)
+        # print(results[i][1])
+        # print(results[i][0])
+        # print(output)
         if results[i][0] == 1.0:
             res = 0
         else:
