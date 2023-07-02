@@ -151,26 +151,30 @@ def main():
                 break
 
         # STEP 2 - SAVE TOP 20 WITH MUTATION  // 25 saved so far
-        top_with_mutation = mutation_stage(temp_top_sol, 4)
+        top_with_mutation = mutation_stage(temp_top_sol, 500)
         new_generation += top_with_mutation  # add top with mutation //25
 
         # STEP 3 - SAVE TOP 20 WITH CROSSOVER  // 30 saved so far
         new_generation = cross_stage(temp_top_sol, new_generation)  # add top crossover //45
 
         # STEP 4 -  SAVE NEW 20 // 65 saved so far
-        news = create_x_random_strings(20)
-        new_generation += news
+        # news = create_x_random_strings(20)
+        # new_generation += news
+        fifteen_worst = choose_percentage(18.75, temp_worst_sol)
+        mutation_fifteen_worst = mutation_stage(fifteen_worst, 1000)
+        new_generation += mutation_fifteen_worst
 
         # STEP 5 -  CROSSOVER top with news// 85 saved so far
-        top_ten = choose_percentage(25, temp_top_sol)
-        worst_ten = choose_percentage(12.5, temp_worst_sol)
-        new_list = top_ten + worst_ten
-
-        new_generation = cross_stage(new_list, new_generation)  # 80
+        fifteen_top_ten = choose_percentage(50, temp_top_sol)
+        fifteen_news = create_x_random_strings(10)
+        uni_lst = fifteen_top_ten + fifteen_news
+        new_generation = cross_stage(uni_lst, new_generation)  # add top crossover //45
 
         # STEP 6 -  CROSSOVER random worst// 85 saved so far
-        rand_worst = choose_percentage(25, temp_worst_sol)
-        new_generation = cross_stage(rand_worst, new_generation)
+        news = create_x_random_strings(10)
+        top_ten = choose_percentage(50, temp_top_sol)
+        u_l = news + top_ten
+        new_generation = cross_stage(u_l, new_generation)
 
         all_solutions = new_generation
 
