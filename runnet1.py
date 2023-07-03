@@ -80,7 +80,7 @@ def fitness(weights, input_data):
         else:
             output = 1
 
-        with open('output0.txt', 'a') as f:
+        with open('output1.txt', 'a') as f:
             s = ''.join(str(num) for num in input_data[i])
             f.write(f'{s} {output}\n')
 

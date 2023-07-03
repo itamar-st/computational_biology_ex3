@@ -53,6 +53,6 @@ class NeuralNetwork:
         }
 
         # Write data to the output file
-        with open('wnet0-first.json', 'w') as output_file:
+        with open('wnet0.json', 'w') as output_file:
             json.dump(data, output_file)
 
