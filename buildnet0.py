@@ -1,8 +1,10 @@
+import NN0
 from fitness import fitness
 from createfiles import process_files
 import random
-import string
 from selection import selection
+import sys
+import NN1
 
 NUM_OF_WEIGTHS_IN_SET = 10562  # 2048 + 8192 + 128 + 128 + 64 + 2
 INIT_NUM_OF_WEIGHTS = 100
@@ -104,7 +106,19 @@ def create_x_random_strings(x):
     return str_lst
 
 
-def main():
+def build_network_structure():
+    # Define the network structure
+    network_structure = {
+        "layers": [
+            {"type": "input", "size": 10},
+            {"type": "hidden", "size": 20},
+            {"type": "output", "size": 5}
+        ]
+    }
+    return network_structure
+
+
+def build_net(learn_file, testfile):
     all_solutions = initialization()  # create 100 solutions of 98 cells
 
     best_sol_progress = []
@@ -112,7 +126,7 @@ def main():
     worst_sol_progress = []
 
     train_binary_strings, train_labels_encoded, test_binary_strings, test_labels_encoded = \
-        process_files('train_set.txt', 'test_set.txt')
+        process_files(learn_file, testfile)
 
     binary_lists_train = []
     binary_lists_test = []
@@ -187,8 +201,22 @@ def main():
     print("the test result:")
     fitness(all_solutions[0], binary_lists_test, test_labels_encoded)
 
+    best_result = all_solutions[0]
+    network = NN0.NeuralNetwork(best_result)
+    network.write_conf_to_file(best_result)
+
     return 0
 
 
 if __name__ == "__main__":
-    main()
+    # Check if the correct number of command-line arguments is provided
+    if len(sys.argv) != 3:
+        print("Usage: python buildnet.py <learning_file> <test_file>")
+        sys.exit(1)
+
+    # Extract the file names from command-line arguments
+    learning_file = sys.argv[1]
+    test_file = sys.argv[2]
+
+    # Call build_net with the file names
+    build_net(learning_file, test_file)
