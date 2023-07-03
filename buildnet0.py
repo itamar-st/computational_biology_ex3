@@ -4,7 +4,6 @@ from createfiles import process_files
 import random
 from selection import selection
 import sys
-import NN1
 
 NUM_OF_WEIGTHS_IN_SET = 10562  # 2048 + 8192 + 128 + 128 + 64 + 2
 INIT_NUM_OF_WEIGHTS = 100
@@ -104,18 +103,6 @@ def create_x_random_strings(x):
         str_lst.append(str)
 
     return str_lst
-
-
-def build_network_structure():
-    # Define the network structure
-    network_structure = {
-        "layers": [
-            {"type": "input", "size": 10},
-            {"type": "hidden", "size": 20},
-            {"type": "output", "size": 5}
-        ]
-    }
-    return network_structure
 
 
 def build_net(learn_file, testfile):

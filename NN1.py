@@ -1,6 +1,6 @@
 import json
 import numpy as np
-
+import warnings
 
 class NeuralNetwork:
     def __init__(self, weights):  # weights - array[88]
@@ -30,9 +30,11 @@ class NeuralNetwork:
         return np.maximum(0, x)
 
     def softmax(self, x):
-        return np.exp(x) / np.sum(np.exp(x))  # e^x / sumi(e^xi)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            return np.exp(x) / np.sum(np.exp(x))  # e^x / sumi(e^xi)
 
-    def write_conf_to_file(self):
+    def write_conf_to_file(self, best_result):
         # Create dictionary for network structure
         network_structure = {
             "layers": [
@@ -43,23 +45,14 @@ class NeuralNetwork:
             ]
         }
 
-        # Create dictionary for network weights and biases
-        network_weights = {
-            "weights": [
-                {"layer": 0, "unit": 0, "values": self.w1.tolist()},
-                {"layer": 1, "unit": 0, "values": self.w2.tolist()},
-                {"layer": 2, "unit": 0, "values": self.w3.tolist()}
-            ],
-            "biases": [
-                {"layer": 0, "unit": 0, "values": self.b1.tolist()},
-                {"layer": 1, "unit": 0, "values": self.b2.tolist()},
-                {"layer": 2, "unit": 0, "values": self.b3.tolist()}
-            ]
+
+        # Create the final data dictionary
+        data = {
+            "best_result": best_result,
+            "network_structure": network_structure
         }
 
-        # Write network structure and weights to the output file
-        with open('wnet1.json', 'a') as output_file:
-            json.dump(network_structure, output_file)
-            output_file.write('\n')
-            json.dump(network_weights, output_file)
+        # Write data to the output file
+        with open('wnet0-first.json', 'w') as output_file:
+            json.dump(data, output_file)
 
